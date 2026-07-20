@@ -21,8 +21,7 @@
 | Variables d'env (prod/preview/dev) | ✅ `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`, `AUTH_URL`, `NEXT_PUBLIC_APP_NAME` |
 | Dépôt GitHub public + CI | ✅ https://github.com/Twist127-cmd/rapiat |
 | Auto-déploiement (push → Vercel) | ✅ activé sur `main` |
-
-> Démo : `demo@rapiat.ch` / `Demo1234!`
+| Compte de démonstration | `demo@rapiat.ch` / `Demo1234!` |
 
 ---
 
