@@ -12,6 +12,20 @@
 
 ---
 
+## Statut
+
+| Élément | État |
+| --- | --- |
+| App en ligne HTTPS | ✅ https://rapiat.vercel.app |
+| Base Neon (migrations + seed) | ✅ atteinte depuis Vercel |
+| Variables d'env (prod/preview/dev) | ✅ `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`, `AUTH_URL`, `NEXT_PUBLIC_APP_NAME` |
+| Dépôt GitHub public + CI | ✅ https://github.com/Twist127-cmd/rapiat |
+| Auto-déploiement (push → Vercel) | ✅ activé sur `main` |
+
+> Démo : `demo@rapiat.ch` / `Demo1234!`
+
+---
+
 ## Sommaire
 
 - [Aperçu](#aperçu)
