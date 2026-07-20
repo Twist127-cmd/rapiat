@@ -1,9 +1,16 @@
 import { describe, it, expect } from "vitest";
+import { format } from "date-fns";
 
 import {
   monthlyEquivalentCents,
   computeDueDates,
 } from "@/modules/recurring/domain/recurring.rules";
+
+// Build dates in LOCAL time and assert with date-fns `format` so the test is
+// timezone/DST-independent (addFrequency advances in wall-clock time, matching
+// how the UTC production runtime behaves).
+const local = (y: number, m: number, d: number) => new Date(y, m - 1, d);
+const ymd = (date: Date) => format(date, "yyyy-MM-dd");
 
 describe("monthlyEquivalentCents", () => {
   it("keeps monthly amounts (interval 1)", () => {
@@ -22,29 +29,36 @@ describe("monthlyEquivalentCents", () => {
 
 describe("computeDueDates", () => {
   it("generates monthly occurrences up to `until` and advances nextRunDate", () => {
-    const start = new Date("2026-01-15T00:00:00Z");
-    const until = new Date("2026-04-01T00:00:00Z");
-    const { dueDates, nextRunDate } = computeDueDates(start, "MONTHLY", 1, null, until);
-    expect(dueDates.map((d) => d.toISOString().slice(0, 10))).toEqual([
-      "2026-01-15",
-      "2026-02-15",
-      "2026-03-15",
-    ]);
-    expect(nextRunDate.toISOString().slice(0, 10)).toBe("2026-04-15");
+    const { dueDates, nextRunDate } = computeDueDates(
+      local(2026, 1, 15),
+      "MONTHLY",
+      1,
+      null,
+      local(2026, 4, 1),
+    );
+    expect(dueDates.map(ymd)).toEqual(["2026-01-15", "2026-02-15", "2026-03-15"]);
+    expect(ymd(nextRunDate)).toBe("2026-04-15");
   });
 
   it("stops at endDate", () => {
-    const start = new Date("2026-01-15T00:00:00Z");
-    const until = new Date("2026-12-01T00:00:00Z");
-    const end = new Date("2026-03-01T00:00:00Z");
-    const { dueDates } = computeDueDates(start, "MONTHLY", 1, end, until);
+    const { dueDates } = computeDueDates(
+      local(2026, 1, 15),
+      "MONTHLY",
+      1,
+      local(2026, 3, 1),
+      local(2026, 12, 1),
+    );
     expect(dueDates).toHaveLength(2); // Jan 15, Feb 15 (Mar 15 is after endDate)
   });
 
   it("returns nothing when nextRunDate is in the future", () => {
-    const start = new Date("2026-06-15T00:00:00Z");
-    const until = new Date("2026-01-01T00:00:00Z");
-    const { dueDates } = computeDueDates(start, "MONTHLY", 1, null, until);
+    const { dueDates } = computeDueDates(
+      local(2026, 6, 15),
+      "MONTHLY",
+      1,
+      null,
+      local(2026, 1, 1),
+    );
     expect(dueDates).toHaveLength(0);
   });
 });
