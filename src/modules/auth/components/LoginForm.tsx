@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +20,6 @@ import {
 } from "@/components/ui/form";
 
 export function LoginForm({ allowSignup }: { allowSignup: boolean }) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -35,8 +33,10 @@ export function LoginForm({ allowSignup }: { allowSignup: boolean }) {
     startTransition(async () => {
       const result = await loginAction(values);
       if (result.ok) {
-        router.push("/");
-        router.refresh();
+        // Full-page navigation (not client-side router.push): guarantees the
+        // freshly set session cookie is sent on the next request. Fixes a
+        // mobile-Safari case where a soft navigation bounced back to /login.
+        window.location.assign("/");
         return;
       }
       setFormError(result.error);

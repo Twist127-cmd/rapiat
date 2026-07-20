@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +20,6 @@ import {
 } from "@/components/ui/form";
 
 export function SignupForm() {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -36,8 +34,9 @@ export function SignupForm() {
       const result = await signupAction(values);
       if (result.ok) {
         toast.success("Compte créé. Bienvenue chez Rapiat !");
-        router.push("/");
-        router.refresh();
+        // Full-page navigation so the new session cookie is applied reliably
+        // (mobile Safari can drop a soft navigation right after sign-in).
+        window.location.assign("/");
         return;
       }
       setFormError(result.error);
