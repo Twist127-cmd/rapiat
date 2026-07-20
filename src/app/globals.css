@@ -1,0 +1,356 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--heading-font);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* =================================================================== */
+/* THÈME « CLASSIQUE » (défaut) — dérivé du logo Rapiat :               */
+/* bleu marine profond · or · rose blush · base crème.                  */
+/* =================================================================== */
+:root {
+  --heading-font: var(--font-fraunces);
+  --background: oklch(0.98 0.012 85);
+  --foreground: oklch(0.26 0.04 265);
+  --card: oklch(0.995 0.006 85);
+  --card-foreground: oklch(0.26 0.04 265);
+  --popover: oklch(0.995 0.006 85);
+  --popover-foreground: oklch(0.26 0.04 265);
+  --primary: oklch(0.33 0.07 265);
+  --primary-foreground: oklch(0.98 0.012 85);
+  --secondary: oklch(0.9 0.04 15);
+  --secondary-foreground: oklch(0.3 0.05 265);
+  --muted: oklch(0.95 0.01 85);
+  --muted-foreground: oklch(0.52 0.03 265);
+  --accent: oklch(0.88 0.06 92);
+  --accent-foreground: oklch(0.3 0.05 265);
+  --destructive: oklch(0.58 0.16 30);
+  --border: oklch(0.9 0.012 85);
+  --input: oklch(0.9 0.012 85);
+  --ring: oklch(0.62 0.1 92);
+  --chart-1: oklch(0.4 0.08 265);
+  --chart-2: oklch(0.76 0.13 92);
+  --chart-3: oklch(0.7 0.12 15);
+  --chart-4: oklch(0.6 0.09 210);
+  --chart-5: oklch(0.55 0.09 305);
+  --radius: 0.8rem;
+  --sidebar: oklch(0.96 0.02 265);
+  --sidebar-foreground: oklch(0.26 0.04 265);
+  --sidebar-primary: oklch(0.33 0.07 265);
+  --sidebar-primary-foreground: oklch(0.98 0.012 85);
+  --sidebar-accent: oklch(0.88 0.06 92);
+  --sidebar-accent-foreground: oklch(0.3 0.05 265);
+  --sidebar-border: oklch(0.89 0.02 265);
+  --sidebar-ring: oklch(0.62 0.1 92);
+}
+
+.dark {
+  --background: oklch(0.22 0.03 265);
+  --foreground: oklch(0.95 0.01 85);
+  --card: oklch(0.26 0.035 265);
+  --card-foreground: oklch(0.95 0.01 85);
+  --popover: oklch(0.26 0.035 265);
+  --popover-foreground: oklch(0.95 0.01 85);
+  --primary: oklch(0.8 0.13 92);
+  --primary-foreground: oklch(0.24 0.04 265);
+  --secondary: oklch(0.34 0.04 15);
+  --secondary-foreground: oklch(0.95 0.01 85);
+  --muted: oklch(0.3 0.025 265);
+  --muted-foreground: oklch(0.72 0.02 265);
+  --accent: oklch(0.38 0.05 92);
+  --accent-foreground: oklch(0.95 0.01 85);
+  --destructive: oklch(0.7 0.16 30);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.8 0.13 92);
+  --chart-1: oklch(0.7 0.1 265);
+  --chart-2: oklch(0.82 0.14 92);
+  --chart-3: oklch(0.75 0.13 15);
+  --chart-4: oklch(0.68 0.1 210);
+  --chart-5: oklch(0.66 0.1 305);
+  --sidebar: oklch(0.25 0.035 265);
+  --sidebar-foreground: oklch(0.95 0.01 85);
+  --sidebar-primary: oklch(0.8 0.13 92);
+  --sidebar-primary-foreground: oklch(0.24 0.04 265);
+  --sidebar-accent: oklch(0.38 0.05 92);
+  --sidebar-accent-foreground: oklch(0.95 0.01 85);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.8 0.13 92);
+}
+
+/* =================================================================== */
+/* THÈME « MODE MARIE » — format vacances / plage, kitsch assumé :      */
+/* turquoise · corail · sable · jaune soleil.                           */
+/* =================================================================== */
+[data-theme="marie"] {
+  --heading-font: var(--font-fredoka);
+  --background: oklch(0.97 0.035 95);
+  --foreground: oklch(0.3 0.05 225);
+  --card: oklch(0.99 0.02 95);
+  --card-foreground: oklch(0.3 0.05 225);
+  --popover: oklch(0.99 0.02 95);
+  --popover-foreground: oklch(0.3 0.05 225);
+  --primary: oklch(0.68 0.13 195);
+  --primary-foreground: oklch(0.99 0.02 95);
+  --secondary: oklch(0.86 0.09 30);
+  --secondary-foreground: oklch(0.32 0.06 25);
+  --muted: oklch(0.94 0.03 95);
+  --muted-foreground: oklch(0.52 0.05 220);
+  --accent: oklch(0.88 0.13 95);
+  --accent-foreground: oklch(0.32 0.06 60);
+  --destructive: oklch(0.62 0.19 25);
+  --border: oklch(0.88 0.04 95);
+  --input: oklch(0.88 0.04 95);
+  --ring: oklch(0.68 0.13 195);
+  --chart-1: oklch(0.68 0.13 195);
+  --chart-2: oklch(0.68 0.17 25);
+  --chart-3: oklch(0.82 0.14 95);
+  --chart-4: oklch(0.66 0.11 230);
+  --chart-5: oklch(0.62 0.14 150);
+  --radius: 1.5rem;
+  --sidebar: oklch(0.93 0.05 195);
+  --sidebar-foreground: oklch(0.3 0.05 225);
+  --sidebar-primary: oklch(0.68 0.13 195);
+  --sidebar-primary-foreground: oklch(0.99 0.02 95);
+  --sidebar-accent: oklch(0.88 0.13 95);
+  --sidebar-accent-foreground: oklch(0.32 0.06 60);
+  --sidebar-border: oklch(0.84 0.06 195);
+  --sidebar-ring: oklch(0.68 0.13 195);
+}
+
+.dark[data-theme="marie"] {
+  --background: oklch(0.29 0.05 228);
+  --foreground: oklch(0.96 0.02 95);
+  --card: oklch(0.33 0.05 228);
+  --card-foreground: oklch(0.96 0.02 95);
+  --popover: oklch(0.33 0.05 228);
+  --popover-foreground: oklch(0.96 0.02 95);
+  --primary: oklch(0.74 0.13 195);
+  --primary-foreground: oklch(0.2 0.04 228);
+  --secondary: oklch(0.45 0.1 25);
+  --secondary-foreground: oklch(0.96 0.02 95);
+  --muted: oklch(0.37 0.04 228);
+  --muted-foreground: oklch(0.78 0.03 190);
+  --accent: oklch(0.62 0.13 95);
+  --accent-foreground: oklch(0.2 0.04 228);
+  --destructive: oklch(0.68 0.18 25);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.74 0.13 195);
+  --chart-1: oklch(0.74 0.13 195);
+  --chart-2: oklch(0.72 0.17 25);
+  --chart-3: oklch(0.84 0.14 95);
+  --chart-4: oklch(0.7 0.11 230);
+  --chart-5: oklch(0.68 0.14 150);
+  --sidebar: oklch(0.32 0.05 228);
+  --sidebar-foreground: oklch(0.96 0.02 95);
+  --sidebar-primary: oklch(0.74 0.13 195);
+  --sidebar-primary-foreground: oklch(0.2 0.04 228);
+  --sidebar-accent: oklch(0.62 0.13 95);
+  --sidebar-accent-foreground: oklch(0.2 0.04 228);
+  --sidebar-border: oklch(1 0 0 / 14%);
+  --sidebar-ring: oklch(0.74 0.13 195);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading;
+    letter-spacing: -0.01em;
+  }
+  /* Mode Marie: rounder, more playful headings — no negative tracking. */
+  [data-theme="marie"] h1,
+  [data-theme="marie"] h2,
+  [data-theme="marie"] h3,
+  [data-theme="marie"] h4 {
+    letter-spacing: 0;
+  }
+}
+
+/* =================================================================== */
+/* Décor « Mode Marie » — vagues, poissons, baleine, soleil.            */
+/* Purement décoratif : n'entrave jamais la lecture des montants.       */
+/* Masqué hors du thème Marie et si l'utilisateur réduit les animations.*/
+/* =================================================================== */
+.marie-decor {
+  display: none;
+}
+[data-theme="marie"] .marie-decor {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Content sits above the decor. */
+[data-theme="marie"] body > * {
+  position: relative;
+}
+
+.marie-sun {
+  position: absolute;
+  top: 4%;
+  right: 6%;
+  width: 88px;
+  height: 88px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    oklch(0.9 0.15 95) 0%,
+    oklch(0.85 0.16 90) 55%,
+    transparent 72%
+  );
+  filter: blur(0.5px);
+  animation: marie-sun-pulse 6s ease-in-out infinite;
+}
+
+.marie-waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 120px;
+  background:
+    radial-gradient(120px 40px at 60px 60px, oklch(0.68 0.13 195 / 0.28) 60%, transparent 62%),
+    radial-gradient(120px 40px at 260px 90px, oklch(0.62 0.14 150 / 0.22) 60%, transparent 62%);
+  background-repeat: repeat-x;
+  background-size: 320px 120px;
+  animation: marie-wave-drift 14s linear infinite;
+}
+
+.marie-fish {
+  position: absolute;
+  font-size: 1.6rem;
+  opacity: 0.55;
+  animation: marie-swim 22s linear infinite;
+}
+.marie-fish--1 {
+  top: 38%;
+  animation-duration: 26s;
+}
+.marie-fish--2 {
+  top: 62%;
+  animation-duration: 19s;
+  animation-delay: -6s;
+}
+.marie-whale {
+  position: absolute;
+  bottom: 8%;
+  font-size: 3rem;
+  opacity: 0.4;
+  animation: marie-swim 40s linear infinite;
+  animation-delay: -12s;
+}
+.marie-palm {
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  font-size: 3.5rem;
+  opacity: 0.5;
+  transform-origin: bottom center;
+  animation: marie-sway 5s ease-in-out infinite;
+}
+
+@keyframes marie-swim {
+  from {
+    transform: translateX(-12vw) scaleX(1);
+  }
+  to {
+    transform: translateX(112vw) scaleX(1);
+  }
+}
+@keyframes marie-sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+@keyframes marie-wave-drift {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: 320px;
+  }
+}
+@keyframes marie-sun-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+/* Respect the user's reduced-motion preference: keep decor, drop animation. */
+@media (prefers-reduced-motion: reduce) {
+  .marie-sun,
+  .marie-waves,
+  .marie-fish,
+  .marie-whale,
+  .marie-palm {
+    animation: none !important;
+  }
+}

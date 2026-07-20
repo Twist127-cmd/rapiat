@@ -1,0 +1,271 @@
+// Prisma schema — Rapiat, gestion des finances personnelles.
+//
+// Design invariants:
+//  - Every business entity carries an indexed `userId` so the data-access
+//    layer scopes EVERY query by user. No row is reachable without a user
+//    filter (the personal-finance equivalent of esthetique-app's multi-tenant
+//    isolation).
+//  - All monetary amounts are INTEGER CENTS (`Int`), never floats.
+//  - Account balances are DERIVED: an account stores only its opening balance
+//    (`initialBalanceCents`); the current balance is computed from the account's
+//    transactions so it can never drift out of sync.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  // Prisma 7: the connection URL lives in prisma.config.ts (migrations) and in
+  // the driver adapter passed to PrismaClient (runtime), not in this block.
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum AccountType {
+  CHECKING // compte courant
+  SAVINGS // compte épargne
+  CASH // espèces
+  CREDIT // carte de crédit
+}
+
+enum CategoryKind {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+/// Distinguishes recurring commitments (rent, subscriptions…) from one-off
+/// spending. Only meaningful on EXPENSE transactions.
+enum ExpenseKind {
+  FIXED
+  VARIABLE
+}
+
+enum Frequency {
+  WEEKLY
+  MONTHLY
+  YEARLY
+  CUSTOM
+}
+
+enum BudgetPeriod {
+  MONTHLY
+  YEARLY
+}
+
+// ---------------------------------------------------------------------------
+// User — root of isolation. One person, their whole financial space.
+// Credentials + JWT sessions (no OAuth adapter tables needed).
+// ---------------------------------------------------------------------------
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String?
+  passwordHash    String
+  currency        String   @default("CHF")
+  timezone        String   @default("Europe/Zurich")
+  dateFormat      String   @default("dd/MM/yyyy")
+  // "classique" | "marie" — the visual theme family (light/dark handled by next-themes).
+  themePreference String   @default("classique")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
+  recurring    RecurringRule[]
+  budgets      Budget[]
+  savingsGoals SavingsGoal[]
+  auditLogs    AuditLog[]
+}
+
+// ---------------------------------------------------------------------------
+// Bank accounts
+// ---------------------------------------------------------------------------
+
+model Account {
+  id                  String      @id @default(cuid())
+  userId              String
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                String
+  type                AccountType @default(CHECKING)
+  // Opening balance. Current balance = initial + sum of this account's movements.
+  initialBalanceCents Int         @default(0)
+  currency            String      @default("CHF")
+  color               String      @default("#1e2a4a")
+  icon                String      @default("wallet")
+  archived            Boolean     @default(false)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  transactions       Transaction[] @relation("AccountTransactions")
+  incomingTransfers  Transaction[] @relation("TransferAccount")
+  recurring          RecurringRule[]
+  savingsGoals       SavingsGoal[]
+
+  @@index([userId])
+  @@index([userId, archived])
+}
+
+// ---------------------------------------------------------------------------
+// Categories (hierarchical, split income / expense)
+// ---------------------------------------------------------------------------
+
+model Category {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  kind      CategoryKind
+  parentId  String?
+  parent    Category?    @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Category[]   @relation("CategoryTree")
+  color     String       @default("#c9a227")
+  icon      String       @default("tag")
+  isDefault Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  transactions Transaction[]
+  recurring    RecurringRule[]
+  budgets      Budget[]
+
+  @@index([userId])
+  @@index([userId, kind])
+}
+
+// ---------------------------------------------------------------------------
+// Transactions — income, expense, transfer (all amounts positive cents;
+// the sign is derived from `type` at read time).
+// ---------------------------------------------------------------------------
+
+model Transaction {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId   String
+  account     Account         @relation("AccountTransactions", fields: [accountId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  type        TransactionType
+  amountCents Int
+  date        DateTime
+  note        String?
+  tags        String[]        @default([])
+  expenseKind ExpenseKind?
+  // For TRANSFER rows: the destination account (money leaves `account`).
+  transferAccountId String?
+  transferAccount   Account?  @relation("TransferAccount", fields: [transferAccountId], references: [id], onDelete: SetNull)
+  // Set when auto-generated from a recurring rule (dedupes generation).
+  recurringRuleId String?
+  recurringRule   RecurringRule? @relation(fields: [recurringRuleId], references: [id], onDelete: SetNull)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([userId, date])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([recurringRuleId])
+}
+
+// ---------------------------------------------------------------------------
+// Recurring rules (fixed/recurring expenses and incomes)
+// ---------------------------------------------------------------------------
+
+model RecurringRule {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId   String
+  account     Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  type        TransactionType @default(EXPENSE)
+  amountCents Int
+  frequency   Frequency       @default(MONTHLY)
+  // Multiplier for the frequency (e.g. interval 2 + WEEKLY = every 2 weeks).
+  interval    Int             @default(1)
+  nextRunDate DateTime
+  endDate     DateTime?
+  label       String
+  note        String?
+  expenseKind ExpenseKind?    @default(FIXED)
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  transactions Transaction[]
+
+  @@index([userId])
+  @@index([userId, active, nextRunDate])
+}
+
+// ---------------------------------------------------------------------------
+// Budgets (per category, per period)
+// ---------------------------------------------------------------------------
+
+model Budget {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  periodType  BudgetPeriod @default(MONTHLY)
+  amountCents Int
+  rollover    Boolean      @default(false)
+  startDate   DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([userId, categoryId, periodType])
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Savings goals
+// ---------------------------------------------------------------------------
+
+model SavingsGoal {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  targetCents  Int
+  currentCents Int       @default(0)
+  deadline     DateTime?
+  accountId    String?
+  account      Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  color        String    @default("#e6a4b4")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Audit log (best-effort activity journal)
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail String?
+  action    String
+  detail    String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
