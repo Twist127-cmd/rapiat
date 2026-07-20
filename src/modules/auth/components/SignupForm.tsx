@@ -1,48 +1,32 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import { useFormStatus } from "react-dom";
 
-import { signupSchema, type SignupInput } from "@/modules/auth/schemas";
-import { signupAction } from "@/modules/auth/actions/auth.actions";
+import { signupRedirectAction } from "@/modules/auth/actions/auth.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
-export function SignupForm() {
-  const [isPending, startTransition] = useTransition();
-  const [formError, setFormError] = useState<string | null>(null);
+const ERROR_MESSAGES: Record<string, string> = {
+  email: "Un compte existe déjà avec cette adresse e-mail.",
+  invalid:
+    "Vérifiez vos informations : mot de passe d'au moins 8 caractères et confirmation identique.",
+};
 
-  const form = useForm<SignupInput>({
-    resolver: zodResolver(signupSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
-  });
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? <Spinner /> : null}
+      {pending ? "Création…" : "Créer mon compte"}
+    </Button>
+  );
+}
 
-  function onSubmit(values: SignupInput) {
-    setFormError(null);
-    startTransition(async () => {
-      const result = await signupAction(values);
-      if (result.ok) {
-        toast.success("Compte créé. Bienvenue chez Rapiat !");
-        // Full-page navigation so the new session cookie is applied reliably
-        // (mobile Safari can drop a soft navigation right after sign-in).
-        window.location.assign("/");
-        return;
-      }
-      setFormError(result.error);
-      toast.error(result.error);
-    });
-  }
+export function SignupForm({ error }: { error?: string }) {
+  const message = error ? (ERROR_MESSAGES[error] ?? "Inscription impossible.") : null;
 
   return (
     <div className="grid gap-6">
@@ -50,77 +34,58 @@ export function SignupForm() {
         <h1 className="font-heading text-3xl font-semibold">Créer un compte</h1>
         <p className="text-muted-foreground">Commencez à suivre vos finances en un instant.</p>
       </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nom</FormLabel>
-                <FormControl>
-                  <Input autoComplete="name" placeholder="Marie Exemple" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
+
+      <form action={signupRedirectAction} className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="name">Nom</Label>
+          <Input id="name" name="name" autoComplete="name" placeholder="Marie Exemple" required />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="email">Adresse e-mail</Label>
+          <Input
+            id="email"
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Adresse e-mail</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    autoComplete="email"
-                    placeholder="vous@exemple.ch"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder="vous@exemple.ch"
+            required
           />
-          <FormField
-            control={form.control}
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="password">Mot de passe</Label>
+          <Input
+            id="password"
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mot de passe</FormLabel>
-                <FormControl>
-                  <Input type="password" autoComplete="new-password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
+            required
           />
-          <FormField
-            control={form.control}
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+          <Input
+            id="confirmPassword"
             name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirmer le mot de passe</FormLabel>
-                <FormControl>
-                  <Input type="password" autoComplete="new-password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="password"
+            autoComplete="new-password"
+            required
           />
+        </div>
 
-          {formError ? (
-            <p role="alert" className="text-destructive text-sm">
-              {formError}
-            </p>
-          ) : null}
+        {message ? (
+          <p role="alert" className="text-destructive text-sm">
+            {message}
+          </p>
+        ) : null}
 
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Création…" : "Créer mon compte"}
-          </Button>
-        </form>
-      </Form>
+        <SubmitButton />
+      </form>
+
       <p className="text-muted-foreground text-center text-sm">
         Déjà un compte ?{" "}
         <Link href="/login" className="text-primary font-medium hover:underline">

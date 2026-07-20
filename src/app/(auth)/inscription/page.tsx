@@ -8,8 +8,12 @@ export const metadata: Metadata = {
   title: "Inscription",
 };
 
-export default function SignupPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export default async function SignupPage({ searchParams }: { searchParams: SearchParams }) {
   // Registration can be locked to the single owner once the app is set up.
   if (!env.NEXT_PUBLIC_ALLOW_SIGNUP) notFound();
-  return <SignupForm />;
+  const sp = await searchParams;
+  const error = Array.isArray(sp.error) ? sp.error[0] : sp.error;
+  return <SignupForm error={error} />;
 }

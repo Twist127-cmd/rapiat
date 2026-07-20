@@ -1,6 +1,7 @@
 "use server";
 
 import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 
 import { signIn, signOut } from "@/server/auth";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
@@ -59,6 +60,82 @@ export async function loginAction(input: unknown): Promise<ActionResult<null>> {
   } catch (error) {
     if (error instanceof AuthError) {
       return fail("E-mail ou mot de passe incorrect.");
+    }
+    throw error;
+  }
+}
+
+/**
+ * Form-bound login (progressive enhancement). Works even when client
+ * JavaScript hasn't taken over the form — the browser POSTs the form to this
+ * server action, which authenticates and redirects server-side (the session
+ * cookie is set on the same response). This is the robust path for mobile,
+ * where hydration can lag and a JS-only handler would fall back to a native
+ * GET submit that does nothing.
+ */
+export async function loginRedirectAction(formData: FormData): Promise<void> {
+  const parsed = loginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) {
+    redirect("/login?error=invalid");
+  }
+  try {
+    await signIn("credentials", {
+      email: parsed.data.email,
+      password: parsed.data.password,
+      redirectTo: "/",
+    });
+  } catch (error) {
+    // AuthError = bad credentials → back to login with a message. Any other
+    // throw here is the NEXT_REDIRECT signal from a successful signIn; rethrow
+    // it so Next performs the redirect to "/".
+    if (error instanceof AuthError) {
+      redirect("/login?error=credentials");
+    }
+    throw error;
+  }
+}
+
+/**
+ * Form-bound sign-up (progressive enhancement), same rationale as
+ * `loginRedirectAction`: robust on mobile without relying on client JS.
+ */
+export async function signupRedirectAction(formData: FormData): Promise<void> {
+  if (!env.NEXT_PUBLIC_ALLOW_SIGNUP) {
+    redirect("/login");
+  }
+  const parsed = signupSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+  if (!parsed.success) {
+    redirect("/inscription?error=invalid");
+  }
+
+  try {
+    const user = await registerUser(parsed.data);
+    await recordAudit({ userId: user.id, userEmail: user.email, action: "signup" });
+  } catch (error) {
+    if (isDomainError(error)) {
+      redirect("/inscription?error=email");
+    }
+    throw error;
+  }
+
+  try {
+    await signIn("credentials", {
+      email: parsed.data.email,
+      password: parsed.data.password,
+      redirectTo: "/",
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      // Account created but auto-login failed — send them to the login page.
+      redirect("/login");
     }
     throw error;
   }
