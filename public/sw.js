@@ -7,7 +7,7 @@
  *   - Static, versioned assets (icons/manifest): cache-first for speed.
  *   - Everything else (APIs, server actions, non-GET): passthrough to network.
  */
-const CACHE = "rapiat-v1";
+const CACHE = "rapiat-v2";
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [OFFLINE_URL, "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
 
