@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 
 import { getUserContext } from "@/server/data-access";
 import { SideNav } from "@/components/app-nav";
+import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/mobile-nav";
 import { MobileHeader } from "@/components/mobile-header";
 import { LogoutButton } from "@/components/logout-button";
@@ -32,6 +35,13 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         <header className="bg-background/80 sticky top-0 z-30 flex items-center justify-between gap-2 border-b px-4 py-3 backdrop-blur pt-[calc(0.75rem+env(safe-area-inset-top))] md:justify-end">
           <MobileHeader appName={appName} />
           <div className="hidden items-center gap-2 md:flex">
+            {ctx.user.isSuperAdmin ? (
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/superadmin">
+                  <ShieldCheck className="size-4" /> Console
+                </Link>
+              </Button>
+            ) : null}
             <ThemeSwitcher />
             <span className="text-muted-foreground hidden text-sm lg:inline">{ctx.email}</span>
             <ThemeToggle />
@@ -44,6 +54,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       </div>
 
       <MobileNav
+        isSuperAdmin={ctx.user.isSuperAdmin}
         accounts={accounts.map((a) => ({ id: a.id, name: a.name }))}
         categories={categories.map((c) => ({
           id: c.id,

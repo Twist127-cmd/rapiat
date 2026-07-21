@@ -170,6 +170,25 @@ L'UI est repensée **mobile-first** tout en préservant le desktop (voir
 - Vérifié aux largeurs 360/390/768 px, dans les deux thèmes et en clair/sombre (captures :
   `docs/screenshots/`).
 
+## Console super-admin
+
+Interface d'administration **séparée** sur `/superadmin`, réservée aux comptes
+`isSuperAdmin` (garde `requireSuperAdmin` → 404 sinon), avec son propre habillage :
+
+- **Console** : statistiques plateforme (utilisateurs, comptes, transactions, connexions 24 h)
+  et flux d'activité récente.
+- **Utilisateurs** : créer un compte, **réinitialiser un mot de passe oublié** (saisie
+  manuelle), promouvoir/rétrograder super-admin, supprimer un compte (avec confirmation).
+- **Journaux** : journal d'audit **complet** de toute la plateforme, filtrable (utilisateur,
+  action, période, recherche) et paginé. Les actions super-admin sont elles-mêmes journalisées.
+
+Créer un super-admin :
+
+```bash
+pnpm make:superadmin admin@rapiat.ch            # mot de passe fort généré, affiché une fois
+pnpm make:superadmin mon@email.ch monMotDePasse # ou promotion d'un compte existant
+```
+
 ## Sécurité
 
 Pare-feux en couches : **route** (`proxy.ts` + `authorized`), **session** (`requireSession`),

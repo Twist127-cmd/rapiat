@@ -27,7 +27,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:migrate:http": "tsx prisma/migrate-http.ts",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "make:superadmin": "tsx scripts/set-superadmin.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

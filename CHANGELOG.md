@@ -8,6 +8,13 @@ et le projet suit le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Console super-admin** séparée (`/superadmin`, garde `requireSuperAdmin` → 404 sinon) :
+  tableau de bord (stats plateforme + activité récente), gestion des utilisateurs (créer,
+  réinitialiser le mot de passe, promouvoir/rétrograder, supprimer) et **journal d'activité
+  complet** filtrable (utilisateur, action, période, recherche) et paginé. Chaque action
+  super-admin est elle-même journalisée. Champ `User.isSuperAdmin` + migration ; script
+  `pnpm make:superadmin <email> [mdp]`.
+
 - **Refonte mobile-first** de l'interface : navigation en bulle flottante dépliable (remplace
   la barre du bas), saisie rapide de transaction en bottom-sheet, listes en cartes glissables
   (swipe/tap) sur mobile avec tableau conservé sur desktop, feuilles adaptatives (vaul) pour

@@ -77,6 +77,9 @@ model User {
   dateFormat      String   @default("dd/MM/yyyy")
   // "classique" | "marie" — the visual theme family (light/dark handled by next-themes).
   themePreference String   @default("classique")
+  // Platform operator: grants access to the separate /superadmin console
+  // (cross-user account management, password resets, full audit log).
+  isSuperAdmin    Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

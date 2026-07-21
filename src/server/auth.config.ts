@@ -40,11 +40,13 @@ export const authConfig = {
     jwt({ token, user }) {
       if (user) {
         token.id = user.id as string;
+        token.isSuperAdmin = Boolean(user.isSuperAdmin);
       }
       return token;
     },
     session({ session, token }) {
       session.user.id = token.id as string;
+      session.user.isSuperAdmin = Boolean(token.isSuperAdmin);
       return session;
     },
   },

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, MoreHorizontal } from "lucide-react";
+import { Menu, X, MoreHorizontal, ShieldCheck } from "lucide-react";
 
 import {
   PRIMARY_NAV_ITEMS,
@@ -45,9 +45,11 @@ const SIDE_KEY = "rapiat-nav-side";
 export function MobileNav({
   accounts,
   categories,
+  isSuperAdmin = false,
 }: {
   accounts: QuickAccount[];
   categories: QuickCategory[];
+  isSuperAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -206,6 +208,17 @@ export function MobileNav({
               );
             })}
           </nav>
+
+          {isSuperAdmin ? (
+            <Link
+              href="/superadmin"
+              onClick={() => setPlusOpen(false)}
+              className="bg-primary text-primary-foreground mt-2 flex min-h-12 items-center gap-3 rounded-xl px-3 text-base"
+            >
+              <ShieldCheck className="size-5" />
+              Console super-admin
+            </Link>
+          ) : null}
 
           <div className="mt-4 space-y-3 border-t pt-4">
             <div className="flex items-center justify-between">
