@@ -8,8 +8,19 @@ et le projet suit le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Refonte mobile-first** de l'interface : navigation en bulle flottante dépliable (remplace
+  la barre du bas), saisie rapide de transaction en bottom-sheet, listes en cartes glissables
+  (swipe/tap) sur mobile avec tableau conservé sur desktop, feuilles adaptatives (vaul) pour
+  formulaires/filtres, en-tête compact avec titre d'écran. Audit dans `docs/ux-mobile-audit.md`,
+  tests Playwright en viewport 390×844, captures dans `docs/screenshots/`.
 - Modules métier (comptes, transactions, dépenses fixes, budgets, épargne), tableau de bord,
-  rapports et exports PDF/Excel — en cours.
+  rapports et exports PDF/Excel.
+
+### Corrigé
+
+- Connexion/inscription robustes sur mobile (formulaires liés à des server actions,
+  fonctionnent sans JS).
+- Disparition d'un décalage d'hydratation sur le sélecteur clair/sombre (icônes pilotées en CSS).
 
 ## [0.1.0] - 2026-07-20
 

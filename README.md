@@ -151,6 +151,25 @@ Deux familles commutables sans rechargement, via variables CSS **OKLCH** dans `g
 Chaque famille a sa déclinaison **clair/sombre** (`next-themes`). La famille est stockée sur
 `data-theme` (`<html>`) avec un script anti-flash, persistée en local et sur le profil.
 
+## Interface mobile (mobile-first)
+
+L'UI est repensée **mobile-first** tout en préservant le desktop (voir
+[`docs/ux-mobile-audit.md`](docs/ux-mobile-audit.md)) :
+
+- **Navigation en bulle flottante** (`components/mobile-nav.tsx`) : un FAB en bas (zone du
+  pouce) qui déplie les onglets, l'action rapide « + Nouvelle transaction » et un menu
+  « Plus » (pages secondaires + thème + déconnexion). Remplace la barre du bas. Générée
+  depuis `config/navigation.ts` ; accessible (focus, `aria-*`, Échap, `prefers-reduced-motion`).
+- **Saisie rapide** de transaction en bottom-sheet (montant, type, chips catégorie/compte).
+- **Listes, pas tableaux** : les transactions deviennent des **cartes glissables** (swipe →
+  dupliquer/supprimer, tap → éditer) < md ; le tableau reste sur desktop (`ResponsiveList`).
+- **Feuilles adaptatives** (`components/ui/sheet.tsx`, basé sur **vaul**) : bottom-sheet
+  glissable < md, modale centrée ≥ md ; filtres et « Plus » en sheet.
+- **En-tête compact** avec titre d'écran contextuel ; contrôles de thème/déconnexion dans
+  « Plus ». Cibles tactiles ≥ 44 px, `tabular-nums` sur les montants.
+- Vérifié aux largeurs 360/390/768 px, dans les deux thèmes et en clair/sombre (captures :
+  `docs/screenshots/`).
+
 ## Sécurité
 
 Pare-feux en couches : **route** (`proxy.ts` + `authorized`), **session** (`requireSession`),
