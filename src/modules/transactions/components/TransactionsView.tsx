@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   ArrowLeftRight,
   X,
+  SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -39,8 +40,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { TransactionFormDialog } from "./TransactionFormDialog";
+import { TransactionCard } from "./TransactionCard";
 import {
   deleteTransactionAction,
   duplicateTransactionAction,
@@ -63,6 +71,7 @@ export function TransactionsView({ data, accounts, categories, currency, filters
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -144,8 +153,81 @@ export function TransactionsView({ data, accounts, categories, currency, filters
         <TotalTile label="Net" cents={netCents} currency={currency} tone="net" />
       </div>
 
-      {/* Filters */}
-      <Card>
+      {/* Filters — mobile: search + a filters sheet */}
+      <div className="flex gap-2 md:hidden">
+        <div className="relative flex-1">
+          <Search className="text-muted-foreground absolute top-3 left-2.5 size-4" />
+          <Input
+            defaultValue={filters.text ?? ""}
+            placeholder="Rechercher…"
+            className="h-11 pl-8"
+            onChange={(e) => onSearch(e.target.value)}
+          />
+        </div>
+        <Button variant="outline" className="h-11" onClick={() => setFiltersOpen(true)}>
+          <SlidersHorizontal className="size-4" /> Filtres
+        </Button>
+      </div>
+      <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Filtres</SheetTitle>
+          </SheetHeader>
+          <div className="grid gap-3 py-1">
+            <FilterSelect
+              value={filters.type ?? ALL}
+              onChange={(v) => setParam("type", v)}
+              placeholder="Type"
+              options={[
+                { value: "INCOME", label: "Revenus" },
+                { value: "EXPENSE", label: "Dépenses" },
+                { value: "TRANSFER", label: "Transferts" },
+              ]}
+            />
+            <FilterSelect
+              value={filters.accountId ?? ALL}
+              onChange={(v) => setParam("accountId", v)}
+              placeholder="Compte"
+              options={accounts.map((a) => ({ value: a.id, label: a.name }))}
+            />
+            <FilterSelect
+              value={filters.categoryId ?? ALL}
+              onChange={(v) => setParam("categoryId", v)}
+              placeholder="Catégorie"
+              options={categories.map((c) => ({ value: c.id, label: c.name }))}
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                type="date"
+                aria-label="Du"
+                defaultValue={filters.from ?? ""}
+                onChange={(e) => setParam("from", e.target.value)}
+              />
+              <Input
+                type="date"
+                aria-label="Au"
+                defaultValue={filters.to ?? ""}
+                onChange={(e) => setParam("to", e.target.value)}
+              />
+            </div>
+            <FilterSelect
+              value={filters.expenseKind ?? ALL}
+              onChange={(v) => setParam("expenseKind", v)}
+              placeholder="Nature"
+              options={[
+                { value: "FIXED", label: "Fixe" },
+                { value: "VARIABLE", label: "Variable" },
+              ]}
+            />
+            <Button variant="ghost" onClick={() => router.push("/transactions")}>
+              <X className="size-4" /> Réinitialiser
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Filters — desktop */}
+      <Card className="hidden md:block">
         <CardContent className="grid gap-3 py-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="relative">
             <Search className="text-muted-foreground absolute top-2.5 left-2.5 size-4" />
@@ -225,14 +307,29 @@ export function TransactionsView({ data, accounts, categories, currency, filters
         </div>
       ) : null}
 
-      {/* Table */}
+      {/* List */}
       {data.rows.length === 0 ? (
         <EmptyState
           title="Aucune transaction"
           description="Ajoutez votre première transaction ou ajustez les filtres."
         />
       ) : (
-        <Card>
+        <>
+          {/* Mobile: swipeable cards */}
+          <div className="space-y-2 md:hidden">
+            {data.rows.map((row) => (
+              <TransactionCard
+                key={row.id}
+                row={row}
+                currency={currency}
+                accounts={accounts}
+                categories={catChoices}
+              />
+            ))}
+          </div>
+
+          {/* Desktop: table */}
+          <Card className="hidden md:block">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -269,7 +366,8 @@ export function TransactionsView({ data, accounts, categories, currency, filters
               </table>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+        </>
       )}
     </div>
   );

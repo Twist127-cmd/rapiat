@@ -54,4 +54,16 @@ test.describe("Mobile — navigation bulle & saisie rapide", () => {
     await expect(page.getByRole("link", { name: "Paramètres" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Épargne" })).toBeVisible();
   });
+
+  test("transactions en cartes sur mobile, tap → édition", async ({ page }) => {
+    await login(page);
+    await page.goto("/transactions");
+    // No horizontal-scroll table on mobile: the search + Filtres bar is shown.
+    await expect(page.getByRole("button", { name: "Filtres" })).toBeVisible();
+    await page.screenshot({ path: `${SHOTS}/mobile-transactions.png`, fullPage: true });
+
+    // Tapping a card opens the editor sheet (also the detail view).
+    await page.getByText("Logement").first().click();
+    await expect(page.getByText("Modifier la transaction")).toBeVisible();
+  });
 });

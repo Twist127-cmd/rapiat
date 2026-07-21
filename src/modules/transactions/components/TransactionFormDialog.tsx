@@ -52,14 +52,28 @@ function todayISO(): string {
 }
 
 interface Props {
-  trigger: ReactNode;
+  /** Optional trigger. Omit when driving the dialog with `open`/`onOpenChange`. */
+  trigger?: ReactNode;
   accounts: AccountOption[];
   categories: CategoryChoice[];
   transaction?: TransactionRow;
+  /** Controlled open state (e.g. opened from a swipeable card's tap). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function TransactionFormDialog({ trigger, accounts, categories, transaction }: Props) {
-  const [open, setOpen] = useState(false);
+export function TransactionFormDialog({
+  trigger,
+  accounts,
+  categories,
+  transaction,
+  open: openProp,
+  onOpenChange,
+}: Props) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
   const [isPending, startTransition] = useTransition();
   const [tagsText, setTagsText] = useState(transaction ? tagsToInput(transaction.tags) : "");
   const isEdit = Boolean(transaction);
@@ -116,7 +130,7 @@ export function TransactionFormDialog({ trigger, accounts, categories, transacti
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent className="max-h-[92svh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Modifier la transaction" : "Nouvelle transaction"}</DialogTitle>
