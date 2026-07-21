@@ -55,6 +55,21 @@ test.describe("Mobile — navigation bulle & saisie rapide", () => {
     await expect(page.getByRole("link", { name: "Épargne" })).toBeVisible();
   });
 
+  test("rendu en Mode Marie + sombre", async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("rapiat-theme-family", "marie");
+      localStorage.setItem("theme", "dark");
+    });
+    await login(page);
+    await page.screenshot({ path: `${SHOTS}/mobile-marie-dark.png`, fullPage: true });
+    // Family attribute applied.
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "marie");
+    // Bubble still works in this theme.
+    await page.getByRole("button", { name: "Ouvrir le menu" }).click();
+    await expect(page.getByRole("menuitem", { name: /Nouvelle transaction/ })).toBeVisible();
+    await page.screenshot({ path: `${SHOTS}/mobile-marie-dark-nav.png` });
+  });
+
   test("transactions en cartes sur mobile, tap → édition", async ({ page }) => {
     await login(page);
     await page.goto("/transactions");

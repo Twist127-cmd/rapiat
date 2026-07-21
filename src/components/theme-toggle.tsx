@@ -6,22 +6,23 @@ import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
- * Light/dark switch. `resolvedTheme` is undefined until next-themes mounts, so
- * both the server and the first client render show the Moon icon (no hydration
- * mismatch); the correct icon appears once the theme resolves.
+ * Light/dark switch. Both icons are always in the DOM and toggled via the
+ * `dark:` CSS variant (driven by the `.dark` class next-themes puts on <html>),
+ * so the server and client render identical markup — no hydration mismatch.
+ * `resolvedTheme` is read only inside the click handler, never during render.
  */
 export function ThemeToggle() {
   const { setTheme, resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
   return (
     <Button
       variant="ghost"
       size="icon"
-      aria-label={isDark ? "Passer en thème clair" : "Passer en thème sombre"}
+      aria-label="Changer le thème clair/sombre"
       title="Changer le thème"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
-      {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      <Sun className="hidden size-4 dark:block" />
+      <Moon className="size-4 dark:hidden" />
     </Button>
   );
 }

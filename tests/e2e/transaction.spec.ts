@@ -18,6 +18,6 @@ test("ajoute une transaction de dépense", async ({ page }) => {
   // Submit (the dialog's confirm button is the last "Ajouter").
   await page.getByRole("button", { name: "Ajouter" }).last().click();
 
-  // The new row appears in the list.
-  await expect(page.getByText("Test e2e")).toBeVisible();
+  // The new row appears in the desktop table (mobile cards are hidden here).
+  await expect(page.locator("table").getByText("Test e2e").first()).toBeVisible();
 });
