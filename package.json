@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "description": "Rapiat — application de gestion des finances personnelles (revenus, dépenses, épargne, budgets).",
+  "browserslist": [
+    "last 3 years",
+    "iOS >= 15.4",
+    "Safari >= 15.4",
+    "not dead"
+  ],
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "next dev",
