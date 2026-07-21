@@ -66,13 +66,6 @@ export default function RootLayout({
       <head>
         {/* Apply the stored theme family before paint to avoid a flash. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_FAMILY_SCRIPT }} />
-        {/* TEMP diagnostic: surface uncaught JS errors on-screen (older Safari debugging). */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){function s(m){try{var d=document.getElementById('rapiat-err')||document.createElement('div');d.id='rapiat-err';d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#b00020;color:#fff;font:12px/1.4 monospace;padding:8px;white-space:pre-wrap;max-height:50vh;overflow:auto';d.textContent='Rapiat error: '+m;(document.body||document.documentElement).appendChild(d);}catch(e){}}window.addEventListener('error',function(e){s((e.message||'')+' @ '+((e.filename||'').split('/').pop())+':'+(e.lineno||''));});window.addEventListener('unhandledrejection',function(e){s('promise: '+((e.reason&&e.reason.message)||e.reason||''));});})();",
-          }}
-        />
       </head>
       <body className="flex min-h-full flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>

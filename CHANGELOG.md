@@ -21,6 +21,9 @@ et le projet suit le [versionnage sémantique](https://semver.org/lang/fr/).
 - Connexion/inscription robustes sur mobile (formulaires liés à des server actions,
   fonctionnent sans JS).
 - Disparition d'un décalage d'hydratation sur le sélecteur clair/sombre (icônes pilotées en CSS).
+- **Compatibilité Safari plus ancien** (ex. iPhone 13 mini) : ciblage `browserslist` iOS ≥ 15.4
+  pour que le bundle JS s'exécute (l'interactivité ne fonctionnait pas sur ces appareils).
+- Service worker auto-actualisant (plus de version figée en cache après un déploiement).
 
 ## [0.1.0] - 2026-07-20
 
