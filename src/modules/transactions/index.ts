@@ -5,6 +5,8 @@ export {
 } from "./services/transaction.service";
 export { TransactionsView } from "./components/TransactionsView";
 export { TransactionFormDialog } from "./components/TransactionFormDialog";
+export { QuickTransactionSheet } from "./components/QuickTransactionSheet";
+export type { QuickAccount, QuickCategory } from "./components/QuickTransactionSheet";
 export { netEffect } from "./domain/transaction.rules";
 export { transactionInputSchema, type TransactionInput } from "./schemas";
 export type {
